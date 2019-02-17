@@ -62,7 +62,7 @@ public class Histogramer {
      * Creates a memory histogram of the current process
      */
     public MemoryHistogram createHistogram() {
-        List<String> commandOutput = runJmap();
+        List<String> commandOutput = runJcmd();
         MemoryHistogram histogram = new MemoryHistogram();
         int[] columns = locatecolumns(commandOutput);
         int cont = 0;
@@ -124,7 +124,7 @@ public class Histogramer {
      * Executes the jmap command with live parameter to guarantee GC execution. It's
      * expected to be in path.
      */
-    private List<String> runJmap() {
+    private List<String> runJcmd() {
         try {
             String name = ManagementFactory.getRuntimeMXBean().getName();
             String PID = name.substring(0, name.indexOf("@"));

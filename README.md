@@ -44,7 +44,7 @@ Profiled code needs to return a reference to an object which contains all the ob
 
 `MemoryHistogram` class is an iterable collection of `HistogramEntry` objects which contains: class name, number of instances and size of all instancess.
 
-A `MemoryHistogram` can be filtered using the `filter` method with a list of:
+A `MemoryHistogram` can be filtered using the `filter` method with a varargs of:
 
 - Class name including package: `java.util.HashMap`
 - Class name with a final wildcard: `java.util.HashMap*`
@@ -52,7 +52,7 @@ A `MemoryHistogram` can be filtered using the `filter` method with a list of:
 - Regular expression patter over complete class name: `Pattern.compile(".*List")`
 
 ```java
-MemoryHistogram filterd = histogram.filter("java.util.HashMap*", "Objec[]", ".*Hibernate.*"));
+MemoryHistogram filterd = histogram.filter("java.util.HashMap*", "Objec[]", Pattern.compile(".*Hibernate.*"));
 ```
 
 All options are applied to the histogram and joined in a new `MemoryHistogram`. 
