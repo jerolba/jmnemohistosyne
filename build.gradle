@@ -1,0 +1,116 @@
+plugins {
+  id "com.github.hierynomus.license" version "0.14.0"
+  id "com.jfrog.bintray" version "1.8.4"
+}
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+apply plugin: 'maven-publish'
+apply plugin: 'license'
+license {
+  header rootProject.file("config/HEADER")
+}
+
+compileJava   {
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+check.dependsOn jacocoTestReport
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+	testCompile('org.junit.jupiter:junit-jupiter-api:5.3.2')
+	testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            artifact javadocJar
+            artifactId 'jmnemohistosyne'
+            version version
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name 'jmnemohistosyne'
+                    description 'JMnemohistosyne executes memory histograms of current process'
+                    url 'https://github.com/jerolba/jmnemohistosyne'
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'jerolba'
+                            name 'Jerónimo López'
+                            email 'jerolba+jmnemohistosyne@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection 'scm:git:git://github.com/jerolba/jmnemohistosyne.git'
+                        developerConnection 'scm:git:ssh://github.com:jerolba/jmnemohistosyne.git'
+                        url 'https://github.com/jerolba/jmnemohistosyne'
+                    }
+                }
+            }
+        }
+    }
+}
+
+if (project.hasProperty('bintrayUser')){
+    bintray {
+        user = bintrayUser
+        key = bintrayKey
+        publications = ['mavenJava'] 
+        pkg {
+            repo = 'maven'
+            name = 'jmnemohistosyne'
+            desc = 'JMnemohistosyne executes memory histograms of current process'
+            websiteUrl = 'https://github.com/jerolba/jmnemohistosyne'
+            issueTrackerUrl = 'https://github.com/jerolba/jmnemohistosyne/issues'
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/jerolba/jmnemohistosyne.git'
+            labels = ['java', 'memory', 'histogram', 'profile']
+            version {
+                name = '0.2.0'
+                desc = 'Initial release'
+                released  = new Date()
+            }
+        }
+    }
+}else {
+    println 'No bintray configuration found. Expected bintray user and API key at $HOME/.gradle/gradle.properties file.'
+}
