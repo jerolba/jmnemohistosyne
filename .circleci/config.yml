@@ -27,7 +27,7 @@ jobs:
       - buildgralde
   build-oraclejdk-8:
     docker:
-      - image: circleci/java:oracle-java8
+      - image: circleci/jdk8:0.1.1
     steps:
       - buildgralde
   build-opendjdk-11:
