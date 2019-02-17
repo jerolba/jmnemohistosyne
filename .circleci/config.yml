@@ -8,7 +8,7 @@ commands:
           - v1-dependencies-{{ checksum "build.gradle" }}
           - v1-dependencies-
 
-      - run: gradle dependencies
+      - run: ./gradlew dependencies
 
       - save_cache:
           paths:
