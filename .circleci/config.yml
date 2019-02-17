@@ -1,19 +1,11 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/openjdk:8-jdk
-      
-    working_directory: ~/repo
-
+version: 2.1
+commands:
+  buildgralde:
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "build.gradle" }}
-          # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
       - run: gradle dependencies
@@ -23,9 +15,15 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "build.gradle" }}
         
-      - run: jcmd
-              
-      - run: gradle test -i
+      - run: gradle test
       
       - run: gradle jacocoTestReport
       - run: bash <(curl -s https://codecov.io/bash)
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+      
+    working_directory: ~/repo
+    steps:
+          - buildgralde
