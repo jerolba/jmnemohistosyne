@@ -65,11 +65,11 @@ public class Histogramer {
         List<String> commandOutput = runJcmd();
         commandOutput.forEach(System.out::println);
         MemoryHistogram histogram = new MemoryHistogram();
-        int[] columns = locatecolumns(commandOutput);
         int cont = 0;
         while (!commandOutput.get(cont).startsWith("--")) {
             cont++;
         }
+        int[] columns = locatecolumns(commandOutput.get(cont + 1));
         commandOutput.stream().skip(cont + 1).forEach(str -> {
             String instances = str.substring(columns[0], columns[1]).trim();
             String bytes = str.substring(columns[2], columns[3]).trim();
@@ -90,11 +90,10 @@ public class Histogramer {
     }
 
     /**
-     * Given the output from jmap command, locate the character position of each
+     * Given the output from jcmd command, locate the character position of each
      * data column
      */
-    private int[] locatecolumns(List<String> commandOutput) {
-        String line = commandOutput.get(3);
+    private int[] locatecolumns(String line) {
         int idxDots = line.indexOf(":");
         int idxInst = endChar(line, idxDots + 1);
         int idxBytes = endChar(line, idxInst + 1);
@@ -108,7 +107,7 @@ public class Histogramer {
     }
 
     /**
-     * Locate the next end char of jmap header line
+     * Locate the next end char of jcmd header line
      */
     private int endChar(String line, int begin) {
         int it = begin;
@@ -122,8 +121,8 @@ public class Histogramer {
     }
 
     /**
-     * Executes the jmap command with live parameter to guarantee GC execution. It's
-     * expected to be in path.
+     * Executes the jcmd command with GC.class_histogram parameter. It's expected to
+     * be in path.
      */
     private List<String> runJcmd() {
         try {
