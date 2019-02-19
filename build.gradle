@@ -105,8 +105,8 @@ if (project.hasProperty('bintrayUser')){
             vcsUrl = 'https://github.com/jerolba/jmnemohistosyne.git'
             labels = ['java', 'memory', 'histogram', 'profile']
             version {
-                name = '0.2.0'
-                desc = 'Initial release'
+                name = '0.2.2'
+                desc = 'Fix leacked trace'
                 released  = new Date()
             }
         }

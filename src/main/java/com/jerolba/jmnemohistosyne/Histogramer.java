@@ -63,7 +63,6 @@ public class Histogramer {
      */
     public MemoryHistogram createHistogram() {
         List<String> commandOutput = runJcmd();
-        commandOutput.forEach(System.out::println);
         MemoryHistogram histogram = new MemoryHistogram();
         int cont = 0;
         while (!commandOutput.get(cont).startsWith("--")) {
