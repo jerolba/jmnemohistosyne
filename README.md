@@ -17,19 +17,30 @@ Only live objects are profiled and it inspects all objects in heap, used by your
 
 ## Current memory histogram
 
-To know the current memory consumption you need to use Histogramer class:
+To get a histogram of all objects in memory you create a Histogramer object and call to the createHistogram() method, which will return a MemoryHistogram:
 
 ```java
 Histogramer histogramer = new Histogramer();
 MemoryHistogram histogram = histogramer.createHistogram();
-System.out.println(histogram);
+
+HistogramEntry arrayList = histogram.get("java.util.ArrayList");
+System.out.println(arrayList.getInstances());
+System.out.println(arrayList.getSize());
+
+for (HistogramEntry entry : histogram) {
+    System.out.println(entry);
+}
 ```
+
+`MemoryHistogram` class is an iterable collection of `HistogramEntry` objects containing: class name, number of instances and total size of all instances.
+
+You can also search for a particular class by passing its full name to the get method.
 
 All objects in memory are counted, created directly or indirectly by your code or by the JVM in its internal operations.
 
 ## Memory histogram difference in code execution
 
-You can profile newly created objects in a code section wrapping it in a labmda:
+We can measure the number of living objects instantiated within a section of code using a lambda that contains it:
 
 ```java
 MemoryHistogram diff = Histogramer.getDiff(() -> {
@@ -39,10 +50,15 @@ MemoryHistogram diff = Histogramer.getDiff(() -> {
     }
     return map;
 });
+
+HistogramEntry nodes = diff.get("java.util.HashMap$Node");
+System.out.println(nodes.getInstances());
+System.out.println(nodes.getSize());
 ```
 
 Histogramer will take a snapshot of memory histogram before executing lambda code. After executing your code it creates other histogram and calculates the difference between both histograms.
-Profiled code needs to return a reference to an object which contains all the objects that needs to be measured to avoid its deallocation before the histogram is executed.
+
+You can put all the code you want and call all the needed code inside the lambda, but be sure that all the instances that you want to be taken into account are referenced by some object that already existed outside the lambda or are referenced by the object that returns the lambda (that implements Supplier<?>). Otherwise, by forcing the garbage collection the instances will not appear in the histogram and will be lost in memory, like tears in rain.
 
 ## Filtering
 
@@ -86,9 +102,11 @@ JMnemohistosyne depends on the presence of the `jcmd` command in the path. Then,
 Currently it is tested in the [CI system](https://circleci.com/gh/jerolba/jmnemohistosyne) against: Oracle JDK 8, OpenJDK 8 and OpendJDK 11. 
 
 ## Contribute
+
 Feel free to dive in! [Open an issue](https://github.com/jerolba/jmnemohistosyne/issues/new) or submit PRs.
 
 Any contributor and maintainer of this project follows the [Contributor Covenant Code of Conduct](https://github.com/jerolba/jmnemohistosyne/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
+
 [Apache 2](https://github.com/jerolba/jmnemohistosyne/blob/master/LICENSE.txt) © Jerónimo López
